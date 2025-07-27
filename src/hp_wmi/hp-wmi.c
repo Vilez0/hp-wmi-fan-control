@@ -97,6 +97,10 @@ static const char * const victus_s_thermal_profile_boards[] = {
 	"8C9C"
 };
 
+static const char * const manual_fan_control_boards[] = {
+	"8C9C", "8A4F"
+};
+
 enum hp_wmi_radio {
 	HPWMI_WIFI	= 0x0,
 	HPWMI_BLUETOOTH	= 0x1,
@@ -624,6 +628,7 @@ static int omen_thermal_profile_get(void)
 
 static int is_manual_fan_control_board(void)
 {
+	const char *board_name = dmi_get_system_info(DMI_BOARD_NAME);
 	int ret;
 	unsigned char buffer[8] = { 0 };
 	ret = hp_wmi_perform_query(HPWMI_GET_SYSTEM_DESIGN_DATA, HPWMI_GM,
@@ -631,7 +636,18 @@ static int is_manual_fan_control_board(void)
 	if (ret)
 		return 0;
 
-	pr_info("Hp wmi software fan support %d", buffer[4]);
+	
+	buffer[4] = 0;
+	if (buffer[4] == 0 ) {
+		if (!board_name)
+			return 0;
+		if (match_string(manual_fan_control_boards,
+			    ARRAY_SIZE(manual_fan_control_boards),
+			    board_name) >= 0) {
+					pr_info("Hp wmi software fan support %d", 1);
+					return 1;
+				}
+	}
 
 	return buffer[4];
 }
