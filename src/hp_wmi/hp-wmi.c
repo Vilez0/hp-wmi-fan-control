@@ -98,7 +98,7 @@ static const char * const victus_s_thermal_profile_boards[] = {
 };
 
 static const char * const manual_fan_control_boards[] = {
-	"8C99", "8C9C", "8A4F"
+	 "8A26", "8A4F", "8BC8", "8C99", "8C9C"
 };
 
 enum hp_wmi_radio {
