@@ -629,27 +629,14 @@ static int omen_thermal_profile_get(void)
 static int is_manual_fan_control_board(void)
 {
 	const char *board_name = dmi_get_system_info(DMI_BOARD_NAME);
-	int ret;
-	unsigned char buffer[8] = { 0 };
-	ret = hp_wmi_perform_query(HPWMI_GET_SYSTEM_DESIGN_DATA, HPWMI_GM,
-				   &buffer, sizeof(buffer), sizeof(buffer));
-	if (ret)
-		return 0;
+	if (match_string(manual_fan_control_boards,
+		    ARRAY_SIZE(manual_fan_control_boards),
+		    board_name) >= 0) {
+				pr_info("Hp wmi software fan support %d", 1);
+				return 1;
+			}
 
-	
-	buffer[4] = 0;
-	if (buffer[4] == 0 ) {
-		if (!board_name)
-			return 0;
-		if (match_string(manual_fan_control_boards,
-			    ARRAY_SIZE(manual_fan_control_boards),
-			    board_name) >= 0) {
-					pr_info("Hp wmi software fan support %d", 1);
-					return 1;
-				}
-	}
-
-	return buffer[4];
+	return 1;
 }
 
 static int hp_wmi_fan_speed_max_set(int enabled)
